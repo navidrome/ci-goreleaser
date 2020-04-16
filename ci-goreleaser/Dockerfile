@@ -1,20 +1,14 @@
 FROM golang:1.14.1
 
-LABEL maintainer="bjorn.erik.pedersen@gmail.com"
-
-ENV GORELEASER_VERSION=0.109.0
-ENV GORELEASER_SHA=5120d00d06cbc351a155d9cf6a8cebf890d0490174c4da5450b316d9ad60f843
-
-ENV GORELEASER_DOWNLOAD_FILE=goreleaser_Linux_x86_64.tar.gz
-ENV GORELEASER_DOWNLOAD_URL=https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
+LABEL maintainer="deluan@navidrome.org"
 
 # Install tools
 RUN apt-get update && \
     apt-get install -y automake autogen \
     libtool libxml2-dev uuid-dev libssl-dev bash \
     patch cmake make tar xz-utils bzip2 gzip zlib1g-dev sed cpio \
-	gcc-multilib g++-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev --no-install-recommends || exit 1; \
-	rm -rf /var/lib/apt/lists/*;
+    gcc-multilib g++-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev --no-install-recommends || exit 1; \
+    rm -rf /var/lib/apt/lists/*;
 
 # Cross compile setup
 ENV OSX_SDK_VERSION 	10.12
@@ -38,11 +32,26 @@ RUN mkdir -p /root/.ssh; \
     chmod 0700 /root/.ssh; \
     ssh-keyscan github.com > /root/.ssh/known_hosts;
 
+# Install GoReleaser
+ENV GORELEASER_VERSION=0.131.1
+ENV GORELEASER_SHA=47fefac2e449ec7bae741986fceb1fbd04ed135e14a72898d702de6b889d3a0d
+ENV GORELEASER_DOWNLOAD_FILE=goreleaser_Linux_x86_64.tar.gz
+ENV GORELEASER_DOWNLOAD_URL=https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
+
 RUN  wget ${GORELEASER_DOWNLOAD_URL}; \
-			echo "$GORELEASER_SHA $GORELEASER_DOWNLOAD_FILE" | sha256sum -c - || exit 1; \
-			tar -xzf $GORELEASER_DOWNLOAD_FILE -C /usr/bin/ goreleaser; \
-			rm $GORELEASER_DOWNLOAD_FILE;
-			
+    echo "$GORELEASER_SHA $GORELEASER_DOWNLOAD_FILE" | sha256sum -c - || exit 1; \
+    tar -xzf $GORELEASER_DOWNLOAD_FILE -C /usr/bin/ goreleaser; \
+    rm $GORELEASER_DOWNLOAD_FILE;
+
+# Install ARM and MUSL toolset
+RUN apt-get update && \
+    apt-get install -y gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu musl-tools && \
+    rm -rf /var/lib/apt/lists/*;
+
+# Install extra tools used by the build
+RUN go get -u github.com/go-bindata/go-bindata/...
+
+
 CMD ["goreleaser", "-v"]
 
 

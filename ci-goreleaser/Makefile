@@ -1,5 +1,5 @@
 
-user=bepsays
+user=deluan
 repo=ci-goreleaser
 
 version ?= latest

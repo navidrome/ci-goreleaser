@@ -1,3 +1,5 @@
+# Usage
+
 The version represents the Go version + a counter.
 
 So if the Go version is `1.13.7` and this is the first version based on that:
@@ -6,9 +8,9 @@ So if the Go version is `1.13.7` and this is the first version based on that:
 version=1.13.7-1 make install
 ```
 
-# OSX
+# macOS
 
-The OSX part of the build requires the MaxOS SDK.
+The macOS part of the build requires the macOS SDK.
 
 To obtain it, register for a developer account, then download Xcode:
 
