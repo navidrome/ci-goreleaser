@@ -14,5 +14,8 @@ To obtain it, register for a developer account, then download Xcode:
 
 https://download.developer.apple.com/Developer_Tools/Xcode_8.3.3/Xcode8.3.3.xip
 
-
 Using macOS, you can mount the dmg and create the SDK tarfile with `create_osx_sdk.sh`.
+
+## Credits:
+
+Based on https://github.com/bep/dockerfiles
