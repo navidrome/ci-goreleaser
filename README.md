@@ -1,6 +1,6 @@
 # Navidrome CI-GoReleaser
 
-![Docker](https://github.com/navidrome/dockerfiles/workflows/Docker/badge.svg)
+![Docker](https://github.com/navidrome/ci-goreleaser/workflows/Docker/badge.svg)
 
 Docker image used to generate Navidrome's binaries.
 
