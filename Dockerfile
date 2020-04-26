@@ -1,4 +1,4 @@
-FROM golang:1.14.1
+FROM golang:1.14.2
 
 LABEL maintainer="deluan@navidrome.org"
 
@@ -33,7 +33,7 @@ RUN mkdir -p /root/.ssh; \
     ssh-keyscan github.com > /root/.ssh/known_hosts;
 
 # Install GoReleaser
-ENV GORELEASER_VERSION=0.131.1
+ENV GORELEASER_VERSION=0.132.1
 ENV GORELEASER_SHA=47fefac2e449ec7bae741986fceb1fbd04ed135e14a72898d702de6b889d3a0d
 ENV GORELEASER_DOWNLOAD_FILE=goreleaser_Linux_x86_64.tar.gz
 ENV GORELEASER_DOWNLOAD_URL=https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
