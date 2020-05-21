@@ -1,6 +1,5 @@
 # Navidrome CI-GoReleaser
 
-![Docker](https://github.com/navidrome/ci-goreleaser/workflows/Docker/badge.svg)
 ![GoLang](https://img.shields.io/badge/Go-1.14.3-brightgreen)
 ![Goreleaser](https://img.shields.io/badge/Goreleaser-0.135.0-brightgreen)
 
