@@ -1,7 +1,7 @@
 # Navidrome CI-GoReleaser
 
-![GoLang](https://img.shields.io/badge/Go-1.14.3-brightgreen)
-![Goreleaser](https://img.shields.io/badge/Goreleaser-0.135.0-brightgreen)
+![GoLang](https://img.shields.io/badge/Go-1.14.4-brightgreen)
+![Goreleaser](https://img.shields.io/badge/Goreleaser-0.139.0-brightgreen)
 
 Docker image used to generate Navidrome's binaries.
 
@@ -10,12 +10,12 @@ Docker image used to generate Navidrome's binaries.
 ## Usage
 
 The version represents the Go version + a counter. So if the Go version is `1.13.7` and this is
-the first release based on that, the version should be `1.13.7-1`
+the first release based on that, the version should be `1.13.7-1`. You can check the latest release with `make get-tags`
 
 ### Manual release
 
 ```bash
-version=1.13.7-1 make install
+make install version=1.13.7-1 
 ```
 
 This will build the image in the local workstation, tag and push the image.
