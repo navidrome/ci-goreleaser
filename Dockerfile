@@ -1,16 +1,25 @@
-FROM golang:1.14.4
+FROM ubuntu:16.04
 
 LABEL maintainer="deluan@navidrome.org"
 
+# Set basic env vars
+ENV GOROOT  /usr/local/go
+ENV GOPATH  /go
+ENV PATH    ${GOPATH}/bin:${GOROOT}/bin:${PATH}
+
+WORKDIR ${GOPATH}
+
 # Install tools
+ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get install -y automake autogen \
     libtool libxml2-dev uuid-dev libssl-dev bash \
     patch cmake make tar xz-utils bzip2 gzip zlib1g-dev sed cpio \
+    git apt-transport-https ca-certificates wget ssh python \
     gcc-multilib g++-multilib gcc-mingw-w64 g++-mingw-w64 clang llvm-dev --no-install-recommends || exit 1; \
     rm -rf /var/lib/apt/lists/*;
 
-# Cross compile setup
+# macOS cross compile setup
 ENV OSX_SDK_VERSION 	10.12
 ENV OSX_SDK     		MacOSX$OSX_SDK_VERSION.sdk
 ENV OSX_NDK_X86 		/usr/local/osx-ndk-x86
@@ -25,27 +34,35 @@ RUN git clone https://github.com/tpoechtrager/osxcross.git && \
     mv osxcross/target $OSX_NDK_X86; \
     rm -rf osxcross;
 
-ENV PATH $OSX_NDK_X86/bin:$PATH
-ENV LD_LIBRARY_PATH=$OSX_NDK_X86/lib:$LD_LIBRARY_PATH
+ENV PATH              $OSX_NDK_X86/bin:$PATH
+ENV LD_LIBRARY_PATH   $OSX_NDK_X86/lib:$LD_LIBRARY_PATH
 
 RUN mkdir -p /root/.ssh; \
     chmod 0700 /root/.ssh; \
     ssh-keyscan github.com > /root/.ssh/known_hosts;
 
+# Install GoLang
+ENV GO_VERSION 1.14.4
+
+RUN cd /tmp && \
+    wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
+    tar -xf go*.tar.gz && \
+    mv go /usr/local
+
 # Install GoReleaser
-ENV GORELEASER_VERSION=0.139.0
-ENV GORELEASER_SHA=6b37a8a1125b8878020a4c222bb74c199e89b6fbc5699678c9e06bbebf41b3df
-ENV GORELEASER_DOWNLOAD_FILE=goreleaser_Linux_x86_64.tar.gz
-ENV GORELEASER_DOWNLOAD_URL=https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
+ENV GORELEASER_VERSION        0.139.0
+ENV GORELEASER_SHA            6b37a8a1125b8878020a4c222bb74c199e89b6fbc5699678c9e06bbebf41b3df
+ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
+ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
 
 RUN  wget ${GORELEASER_DOWNLOAD_URL}; \
     echo "$GORELEASER_SHA $GORELEASER_DOWNLOAD_FILE" | sha256sum -c - || exit 1; \
     tar -xzf $GORELEASER_DOWNLOAD_FILE -C /usr/bin/ goreleaser; \
     rm $GORELEASER_DOWNLOAD_FILE;
 
-# Install ARM and MUSL toolset
+# Install ARM toolset
 RUN apt-get update && \
-    apt-get install -y gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu musl-tools && \
+    apt-get install -y gcc-5-arm-linux-gnueabi gcc-5-aarch64-linux-gnu && \
     rm -rf /var/lib/apt/lists/*;
 
 # Install extra tools used by the build
