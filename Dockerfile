@@ -68,6 +68,9 @@ RUN apt-get update && \
 # Install extra tools used by the build
 RUN go get -u github.com/go-bindata/go-bindata/...
 
+# Fix support for 386 (Linux 32bits) platform
+# From https://stackoverflow.com/a/38751292
+RUN ln -s /usr/include/asm-generic /usr/include/asm
 
 CMD ["goreleaser", "-v"]
 
