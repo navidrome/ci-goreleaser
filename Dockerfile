@@ -75,45 +75,34 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 #####################################################################################################
 # Install/compile taglib for various platforms
 
-# Download and install static taglib for Windows
+# Download latest source
+ENV TAGLIB_VERSION=1.11.1
 RUN cd /tmp && \
-    wget https://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-taglib-1.11.1-1-any.pkg.tar.xz && \
-    tar xvf mingw-w64-x86_64-taglib-1.11.1-1-any.pkg.tar.xz && \
-    mv mingw64/ / && \
-    rm mingw-w64-x86_64-taglib-1.11.1-1-any.pkg.tar.xz
-
-RUN cd /tmp && \
-    wget https://repo.msys2.org/mingw/i686/mingw-w64-i686-taglib-1.11.1-1-any.pkg.tar.xz && \
-    tar xvf mingw-w64-i686-taglib-1.11.1-1-any.pkg.tar.xz && \
-    mv mingw32/ / && \
-    rm mingw-w64-i686-taglib-1.11.1-1-any.pkg.tar.xz
-
-RUN cd /tmp && \
-    wget https://taglib.github.io/releases/taglib-1.11.1.tar.gz
+    wget https://taglib.github.io/releases/taglib-$TAGLIB_VERSION.tar.gz
 
 # Build static taglib for Linux 64
 RUN cd /tmp && \
-    tar xvfz taglib-1.11.1.tar.gz && \
-    cd taglib-1.11.1 && \
+    tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
+    cd taglib-$TAGLIB_VERSION && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON && \
     make install && \
     cd .. && \
-    rm -rf taglib-1.11.1
+    rm -rf taglib-$TAGLIB_VERSION
 
 # Build static taglib for Linux 32
 RUN cd /tmp && \
-    tar xvfz taglib-1.11.1.tar.gz && \
-    cd taglib-1.11.1 && \
+    tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
+    cd taglib-$TAGLIB_VERSION && \
     CXXFLAGS=-m32 CFLAGS=-m32 cmake -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON && \
     make && \
     cp taglib/libtag.a /usr/lib/i386-linux-gnu && \
     cd .. && \
-    rm -rf taglib-1.11.1
+    rm -rf taglib-$TAGLIB_VERSION
 
 # Build static taglib for macOS
 RUN cd /tmp && \
-    tar xvfz taglib-1.11.1.tar.gz && \
-    cd taglib-1.11.1 && \
+    tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
+    cd taglib-$TAGLIB_VERSION && \
     cmake  \
         -DCMAKE_INSTALL_PREFIX=/darwin -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
         -DCMAKE_C_COMPILER=/usr/local/osx-ndk-x86/bin/o64-clang \
@@ -122,12 +111,12 @@ RUN cd /tmp && \
         -DCMAKE_AR=/usr/local/osx-ndk-x86/bin/x86_64-apple-darwin16-ar && \
     make install && \
     cd .. && \
-    rm -rf taglib-1.11.1
+    rm -rf taglib-$TAGLIB_VERSION
 
 # Build static taglib for Linux ARMHF
 RUN cd /tmp && \
-    tar xvfz taglib-1.11.1.tar.gz && \
-    cd taglib-1.11.1 && \
+    tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
+    cd taglib-$TAGLIB_VERSION && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
         -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
@@ -135,12 +124,12 @@ RUN cd /tmp && \
     make && \
     cp taglib/libtag.a /usr/lib/arm-linux-gnueabihf && \
     cd .. && \
-    rm -rf taglib-1.11.1
+    rm -rf taglib-$TAGLIB_VERSION
 
 # Build static taglib for Linux ARM64
 RUN cd /tmp && \
-    tar xvfz taglib-1.11.1.tar.gz && \
-    cd taglib-1.11.1 && \
+    tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
+    cd taglib-$TAGLIB_VERSION && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
         -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
@@ -148,10 +137,35 @@ RUN cd /tmp && \
     make && \
     cp taglib/libtag.a /usr/lib/aarch64-linux-gnu && \
     cd .. && \
-    rm -rf taglib-1.11.1
+    rm -rf taglib-$TAGLIB_VERSION
+
+# Build static taglib for Windows 32
+RUN cd /tmp && \
+    tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
+    cd taglib-$TAGLIB_VERSION && \
+    cmake  \
+        -DCMAKE_INSTALL_PREFIX=/mingw32 -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
+        -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc \
+        -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++ && \
+    make install && \
+    cd .. && \
+    rm -rf taglib-$TAGLIB_VERSION
+
+# Build static taglib for Windows 64
+RUN cd /tmp && \
+    tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
+    cd taglib-$TAGLIB_VERSION && \
+    cmake  \
+        -DCMAKE_INSTALL_PREFIX=/mingw64 -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
+        -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+        -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ && \
+    make install && \
+    cd .. && \
+    rm -rf taglib-$TAGLIB_VERSION
 
 CMD ["goreleaser", "-v"]
-
 
 ##############################################################################################################################
 # Notes for self: https://dh1tw.de/2019/12/cross-compiling-golang-cgo-projects/
