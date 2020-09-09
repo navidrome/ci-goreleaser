@@ -1,6 +1,6 @@
 # Navidrome CI-GoReleaser
 
-![GoLang](https://img.shields.io/badge/Go-1.14.7-brightgreen)
+![Version](https://img.shields.io/docker/v/deluan/ci-goreleaser?label=Version&sort=semver)
 ![Goreleaser](https://img.shields.io/badge/Goreleaser-0.139.0-brightgreen)
 ![TagLib](https://img.shields.io/badge/TagLib-1.11.1-brightgreen)
 
