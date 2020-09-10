@@ -66,7 +66,7 @@ RUN dpkg --add-architecture armhf && \
     dpkg --add-architecture arm64 && \
     dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y pkg-config \
+    apt-get install -y pkg-config libtag1-dev \
 # Install Windows toolset
     gcc-mingw-w64 g++-mingw-w64 \
 # Install ARM toolset
@@ -175,61 +175,3 @@ RUN cd /tmp && \
     rm -rf taglib-$TAGLIB_VERSION
 
 CMD ["goreleaser", "-v"]
-
-##############################################################################################################################
-# Notes for self: https://dh1tw.de/2019/12/cross-compiling-golang-cgo-projects/
-
-# RUN echo "alias ll='ls -l $LS_OPTIONS'" >> /root/.bashrc
-# ENV TEST="go get github.com/nicksellen/audiotags/audiotags"
-# ENV T go build -o a386 -ldflags="-extldflags '-static -lz'" ./audiotags
-
-# ENV GOOS=linux
-# ENV GOARCH=x64
-# ENV CGO_ENABLED=1
-# -ldflags="-extldflags '-static -lz'"
-
-# ENV GOOS=linux
-# ENV GOARCH=386
-# ENV CGO_ENABLED=1
-# ENV PATH="/go/bin/${GOOS}_${GOARCH}:${PATH}"
-
-# ENV GOOS=darwin
-# ENV GOARCH=amd64
-# ENV CGO_ENABLED=1
-# ENV CC=o64-clang
-# ENV CXX=o64-clang++
-# ENV AR=x86_64-apple-darwin16-ar
-# ENV RANLIB=x86_64-apple-darwin16-ranlib
-# ENV PATH="/go/bin:/usr/local/go/bin:${PATH}"
-# ENV PKG_CONFIG_PATH=/darwin/lib/pkgconfig
-
-# ENV GOOS=windows
-# ENV GOARCH=amd64
-# ENV CGO_ENABLED=1
-# ENV CC=x86_64-w64-mingw32-gcc
-# ENV CXX=x86_64-w64-mingw32-g++
-# ENV PATH="/go/bin:/usr/local/go/bin:${PATH}"
-# ENV PKG_CONFIG_PATH=/mingw64/lib/pkgconfig
-
-# ENV GOOS=windows
-# ENV GOARCH=386
-# ENV CGO_ENABLED=1
-# ENV CC=i686-w64-mingw32-gcc
-# ENV CXX=i686-w64-mingw32-g++
-# ENV PATH="/go/bin:/usr/local/go/bin:${PATH}"
-# ENV PKG_CONFIG_PATH=/mingw32/lib/pkgconfig
-
-# ENV GOOS=linux
-# ENV GOARCH=arm
-# ENV CGO_ENABLED=1
-# ENV CC=arm-linux-gnueabihf-gcc
-# ENV CXX=arm-linux-gnueabihf-g++
-# ENV PATH="/go/bin/${GOOS}_${GOARCH}:${PATH}"
-
-# ENV GOOS=linux
-# ENV GOARCH=arm64
-# ENV CGO_ENABLED=1
-# ENV CC=aarch64-linux-gnu-gcc
-# ENV CXX=aarch64-linux-gnu-g++
-# ENV PATH="/go/bin/${GOOS}_${GOARCH}:${PATH}"
-
