@@ -1,6 +1,12 @@
-FROM golang:1.14.7
+# Needs to derive from an old Linux to be able to generate binaries compatible with old kernels
+FROM debian:stretch
 
 LABEL maintainer="deluan@navidrome.org"
+
+# Set basic env vars
+ENV GOROOT  /usr/local/go
+ENV GOPATH  /go
+ENV PATH    ${GOPATH}/bin:${GOROOT}/bin:${PATH}
 
 WORKDIR ${GOPATH}
 
@@ -36,6 +42,14 @@ RUN mkdir -p /root/.ssh; \
     chmod 0700 /root/.ssh; \
     ssh-keyscan github.com > /root/.ssh/known_hosts;
 
+# Install GoLang
+ENV GO_VERSION 1.14.9
+
+RUN cd /tmp && \
+    wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
+    tar -xf go*.tar.gz && \
+    mv go /usr/local
+
 # Install GoReleaser
 ENV GORELEASER_VERSION        0.139.0
 ENV GORELEASER_SHA            6b37a8a1125b8878020a4c222bb74c199e89b6fbc5699678c9e06bbebf41b3df
@@ -52,17 +66,12 @@ RUN dpkg --add-architecture armhf && \
     dpkg --add-architecture arm64 && \
     dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y \
+    apt-get install -y pkg-config \
 # Install Windows toolset
     gcc-mingw-w64 g++-mingw-w64 \
 # Install ARM toolset
     gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
-# Install build & runtime dependencies
-    libtag1-dev \
-    libtag1-dev:i386 \
-    libtag1-dev:arm64 \
-    libtag1-dev:armhf \
     || exit 1; rm -rf /var/lib/apt/lists/*;
 
 # Install extra tools used by the build
