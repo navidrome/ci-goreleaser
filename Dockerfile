@@ -66,12 +66,17 @@ RUN dpkg --add-architecture armhf && \
     dpkg --add-architecture arm64 && \
     dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y pkg-config libtag1-dev \
+    apt-get install -y \
 # Install Windows toolset
     gcc-mingw-w64 g++-mingw-w64 \
 # Install ARM toolset
     gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
+# Install build & runtime dependencies	
+    pkg-config libtag1-dev \	
+    libtag1-dev:i386 \	
+    libtag1-dev:arm64 \	
+    libtag1-dev:armhf \
     || exit 1; rm -rf /var/lib/apt/lists/*;
 
 # Install extra tools used by the build
