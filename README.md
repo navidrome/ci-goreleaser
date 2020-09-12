@@ -25,12 +25,13 @@ This will build the image in the local workstation, tag and push the image.
 
 The macOS part of the build requires the macOS SDK.
 
-To obtain it, register for a developer account, then download `Xcode_8.3.3.xip` from :
+You can try to download it from my Dropbox, but it may not be available anymore: https://www.dropbox.com/s/eqaurud6rdmgrpa/MacOSX10.12.sdk.tar.gz?dl=0
 
-https://developer.apple.com/download/more/
+If it is not available in the link above, you can create it with the following instructions:
 
-Unpack the downloaded xip file in the ~/Downloads folder and run `create_osx_sdk.sh` to create the MacOSX10.12.sdk tarfile. 
-You can delete downloaded xip and the `Xcode` files after the tarfile is created.
+1) Register for an Apple developer account, then download `Xcode_8.3.3.xip` from: https://developer.apple.com/download/more/
+2) Unpack the downloaded xip file in the ~/Downloads folder
+3) Run `create_osx_sdk.sh` to create the MacOSX10.12.sdk tarfile. You can delete downloaded xip and the `Xcode` files after the tarfile is created.
 
 ## Credits:
 
