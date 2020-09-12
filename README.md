@@ -25,7 +25,7 @@ This will build the image in the local workstation, tag and push the image.
 
 The macOS part of the build requires the macOS SDK.
 
-You can try to download it from my Dropbox, but it may not be available anymore: https://www.dropbox.com/s/eqaurud6rdmgrpa/MacOSX10.12.sdk.tar.gz?dl=0
+You can try to download it from this Dropbox link: https://www.dropbox.com/s/eqaurud6rdmgrpa/MacOSX10.12.sdk.tar.gz
 
 If it is not available in the link above, you can create it with the following instructions:
 
