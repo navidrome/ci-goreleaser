@@ -62,7 +62,7 @@ RUN  wget ${GORELEASER_DOWNLOAD_URL}; \
     rm $GORELEASER_DOWNLOAD_FILE;
 
 # Install other cross-compiling tools and dependencies
-RUN dpkg --add-architecture armhf && \
+RUN dpkg --add-architecture armel && \
     dpkg --add-architecture arm64 && \
     dpkg --add-architecture i386 && \
     apt-get update && \
@@ -70,13 +70,13 @@ RUN dpkg --add-architecture armhf && \
 # Install Windows toolset
     gcc-mingw-w64 g++-mingw-w64 \
 # Install ARM toolset
-    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
+    gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
 # Install build & runtime dependencies	
     pkg-config libtag1-dev \	
     libtag1-dev:i386 \	
     libtag1-dev:arm64 \	
-    libtag1-dev:armhf \
+    libtag1-dev:armel \
     || exit 1; rm -rf /var/lib/apt/lists/*;
 
 # Install extra tools used by the build
@@ -127,16 +127,16 @@ RUN cd /tmp && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
-# Build static taglib for Linux ARMHF
+# Build static taglib for Linux ARM
 RUN cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
-        -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
-        -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ && \
+        -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc \
+        -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ && \
     make && \
-    cp taglib/libtag.a /usr/lib/arm-linux-gnueabihf && \
+    cp taglib/libtag.a /usr/lib/arm-linux-gnueabi && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 

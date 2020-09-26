@@ -28,3 +28,7 @@ install: build
 get-tags:
 	@wget -q https://registry.hub.docker.com/v1/repositories/deluan/ci-goreleaser/tags -O - | jq -r '.[].name' | grep "^1" | sort -r
 .PHONY: get-tags
+
+latest-tag:
+	@make get-tags | head -1
+.PHONY: latest-tag
