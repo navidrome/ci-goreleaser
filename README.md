@@ -11,7 +11,7 @@ Docker image used to generate Navidrome's binaries.
 ## Usage
 
 The version represents the Go version + a counter. So if the Go version is `1.13.7` and this is
-the first release based on that, the version should be `1.13.7-1`. You can check the latest release with `make get-tags`
+the first release based on that, the version should be `1.13.7-1`. You can check the latest release with `make latest-tag`
 
 ### Manual release
 
