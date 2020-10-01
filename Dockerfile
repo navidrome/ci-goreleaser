@@ -43,7 +43,7 @@ RUN mkdir -p /root/.ssh; \
     ssh-keyscan github.com > /root/.ssh/known_hosts;
 
 # Install GoLang
-ENV GO_VERSION 1.14.9
+ENV GO_VERSION 1.15.2
 
 RUN cd /tmp && \
     wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
