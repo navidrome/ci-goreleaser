@@ -20,7 +20,8 @@ RUN apt-get update && \
     gcc-multilib g++-multilib clang llvm-dev --no-install-recommends || exit 1; \
     rm -rf /var/lib/apt/lists/*;
 
-# macOS cross compile setup
+#####################################################################################################
+# Install macOS cross-compiling toolset
 ENV OSX_SDK_VERSION 	10.12
 ENV OSX_SDK     		MacOSX$OSX_SDK_VERSION.sdk
 ENV OSX_NDK_X86 		/usr/local/osx-ndk-x86
@@ -42,25 +43,7 @@ RUN mkdir -p /root/.ssh; \
     chmod 0700 /root/.ssh; \
     ssh-keyscan github.com > /root/.ssh/known_hosts;
 
-# Install GoLang
-ENV GO_VERSION 1.15.2
-
-RUN cd /tmp && \
-    wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
-    tar -xf go*.tar.gz && \
-    mv go /usr/local
-
-# Install GoReleaser
-ENV GORELEASER_VERSION        0.139.0
-ENV GORELEASER_SHA            6b37a8a1125b8878020a4c222bb74c199e89b6fbc5699678c9e06bbebf41b3df
-ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
-ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
-
-RUN  wget ${GORELEASER_DOWNLOAD_URL}; \
-    echo "$GORELEASER_SHA $GORELEASER_DOWNLOAD_FILE" | sha256sum -c - || exit 1; \
-    tar -xzf $GORELEASER_DOWNLOAD_FILE -C /usr/bin/ goreleaser; \
-    rm $GORELEASER_DOWNLOAD_FILE;
-
+#####################################################################################################
 # Install other cross-compiling tools and dependencies
 RUN dpkg --add-architecture armel && \
     dpkg --add-architecture arm64 && \
@@ -79,9 +62,6 @@ RUN dpkg --add-architecture armel && \
     libtag1-dev:armel \
     || exit 1; rm -rf /var/lib/apt/lists/*;
 
-# Install extra tools used by the build
-RUN go get -u github.com/go-bindata/go-bindata/...
-
 # Fix support for 386 (Linux 32bits) platform
 # From https://stackoverflow.com/a/38751292
 RUN ln -s /usr/include/asm-generic /usr/include/asm
@@ -94,8 +74,8 @@ ENV TAGLIB_VERSION=1.11.1
 RUN cd /tmp && \
     wget https://taglib.github.io/releases/taglib-$TAGLIB_VERSION.tar.gz
 
-# Build static taglib for Linux 64
-RUN cd /tmp && \
+RUN echo "Build static taglib for Linux 64" && \
+    cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON && \
@@ -103,8 +83,8 @@ RUN cd /tmp && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
-# Build static taglib for Linux 32
-RUN cd /tmp && \
+RUN echo "Build static taglib for Linux 32" && \
+    cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     CXXFLAGS=-m32 CFLAGS=-m32 cmake -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON && \
@@ -113,8 +93,8 @@ RUN cd /tmp && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
-# Build static taglib for macOS
-RUN cd /tmp && \
+RUN echo "Build static taglib for macOS" && \
+    cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake  \
@@ -127,8 +107,8 @@ RUN cd /tmp && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
-# Build static taglib for Linux ARM
-RUN cd /tmp && \
+RUN echo "Build static taglib for Linux ARM" && \
+    cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake \
@@ -140,8 +120,8 @@ RUN cd /tmp && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
-# Build static taglib for Linux ARM64
-RUN cd /tmp && \
+RUN echo "Build static taglib for Linux ARM64" && \
+    cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake \
@@ -153,8 +133,8 @@ RUN cd /tmp && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
-# Build static taglib for Windows 32
-RUN cd /tmp && \
+RUN echo "Build static taglib for Windows 32" && \
+    cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake  \
@@ -166,8 +146,8 @@ RUN cd /tmp && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
-# Build static taglib for Windows 64
-RUN cd /tmp && \
+RUN echo "Build static taglib for Windows 64" && \
+    cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake  \
@@ -178,5 +158,30 @@ RUN cd /tmp && \
     make install && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
+
+#####################################################################################################
+# Install GoLang and Go tools
+
+# Install GoLang
+ENV GO_VERSION 1.15.3
+
+RUN cd /tmp && \
+    wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
+    tar -xf go*.tar.gz && \
+    mv go /usr/local
+
+# Install GoReleaser
+ENV GORELEASER_VERSION        0.139.0
+ENV GORELEASER_SHA            6b37a8a1125b8878020a4c222bb74c199e89b6fbc5699678c9e06bbebf41b3df
+ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
+ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
+
+RUN  wget ${GORELEASER_DOWNLOAD_URL}; \
+    echo "$GORELEASER_SHA $GORELEASER_DOWNLOAD_FILE" | sha256sum -c - || exit 1; \
+    tar -xzf $GORELEASER_DOWNLOAD_FILE -C /usr/bin/ goreleaser; \
+    rm $GORELEASER_DOWNLOAD_FILE;
+
+# Install extra tools used by the build
+RUN go get -u github.com/go-bindata/go-bindata/...
 
 CMD ["goreleaser", "-v"]
