@@ -163,7 +163,7 @@ RUN echo "Build static taglib for Windows 64" && \
 # Install GoLang and Go tools
 
 # Install GoLang
-ENV GO_VERSION 1.15.3
+ENV GO_VERSION 1.15.5
 
 RUN cd /tmp && \
     wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
