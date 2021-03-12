@@ -181,7 +181,4 @@ RUN  wget ${GORELEASER_DOWNLOAD_URL}; \
     tar -xzf $GORELEASER_DOWNLOAD_FILE -C /usr/bin/ goreleaser; \
     rm $GORELEASER_DOWNLOAD_FILE;
 
-# Install extra tools used by the build
-RUN go get -u github.com/go-bindata/go-bindata/...
-
 CMD ["goreleaser", "-v"]
