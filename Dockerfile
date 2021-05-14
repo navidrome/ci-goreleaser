@@ -70,7 +70,7 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 # Install/compile taglib for various platforms
 
 # Download latest source
-ENV TAGLIB_VERSION=1.11.1
+ENV TAGLIB_VERSION=1.12
 RUN cd /tmp && \
     wget https://taglib.github.io/releases/taglib-$TAGLIB_VERSION.tar.gz
 
@@ -163,7 +163,7 @@ RUN echo "Build static taglib for Windows 64" && \
 # Install GoLang and Go tools
 
 # Install GoLang
-ENV GO_VERSION 1.16.3
+ENV GO_VERSION 1.16.4
 
 RUN cd /tmp && \
     wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
