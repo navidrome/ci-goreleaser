@@ -1,7 +1,7 @@
 # Navidrome CI-GoReleaser
 
 ![Version](https://img.shields.io/docker/v/deluan/ci-goreleaser?label=Version&sort=semver)
-![Goreleaser](https://img.shields.io/badge/Goreleaser-0.164.0-brightgreen)
+![Goreleaser](https://img.shields.io/badge/Goreleaser-0.175.0-brightgreen)
 ![TagLib](https://img.shields.io/badge/TagLib-1.12-brightgreen)
 
 Docker image used to generate Navidrome's binaries.

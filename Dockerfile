@@ -163,16 +163,20 @@ RUN echo "Build static taglib for Windows 64" && \
 # Install GoLang and Go tools
 
 # Install GoLang
-ENV GO_VERSION 1.16.5
+ENV GO_VERSION        1.17
+ENV GO_SHA            6bf89fc4f5ad763871cf7eac80a2d594492de7a818303283f1366a7f6a30372d
+ENV GO_DOWNLOAD_FILE  go${GO_VERSION}.linux-amd64.tar.gz
+ENV GO_DOWNLOAD_URL   https://golang.org/dl/${GO_DOWNLOAD_FILE} 
 
 RUN cd /tmp && \
-    wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
-    tar -xf go*.tar.gz && \
+    wget ${GO_DOWNLOAD_URL} && \
+    echo "$GO_SHA $GO_DOWNLOAD_FILE" | sha256sum -c - || exit 1; \
+    tar -xf ${GO_DOWNLOAD_FILE} && \
     mv go /usr/local
 
 # Install GoReleaser
-ENV GORELEASER_VERSION        0.169.0
-ENV GORELEASER_SHA            f139fe6191da2209192f43c3a77220067f99c623c78096c2315cbe93facb5455
+ENV GORELEASER_VERSION        0.175.0
+ENV GORELEASER_SHA            f60d1d7c6bec78a6b8613b6e07c4259c81c5d04d263d420bc3e97b507145e065
 ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
 ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
 ENV GOOS linux
