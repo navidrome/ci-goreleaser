@@ -1,5 +1,5 @@
 # Needs to derive from an old Linux to be able to generate binaries compatible with old kernels
-FROM debian:stretch
+FROM golang:1.18.0-buster
 
 LABEL maintainer="deluan@navidrome.org"
 
@@ -22,16 +22,16 @@ RUN apt-get update && \
 
 #####################################################################################################
 # Install macOS cross-compiling toolset
-ENV OSX_SDK_VERSION 	10.12
+ENV OSX_SDK_VERSION 	11.1
 ENV OSX_SDK     		MacOSX$OSX_SDK_VERSION.sdk
 ENV OSX_NDK_X86 		/usr/local/osx-ndk-x86
-ENV OSX_SDK_PATH 		/$OSX_SDK.tar.gz
+ENV OSX_SDK_PATH 		$OSX_SDK.tar.xz
 
-COPY $OSX_SDK.tar.gz /go
+COPY $OSX_SDK_PATH /go
 
 RUN git clone https://github.com/tpoechtrager/osxcross.git && \
-    git -C osxcross checkout d39ba022313f2d5a1f5d02caaa1efb23d07a559b || exit 1; \
-    mv $OSX_SDK.tar.gz osxcross/tarballs/ && \
+    git -C osxcross checkout 035cc170338b7b252e3f13b0e3ccbf4411bffc41 || exit 1; \
+    mv $OSX_SDK_PATH osxcross/tarballs/ && \
     UNATTENDED=yes SDK_VERSION=${OSX_SDK_VERSION} OSX_VERSION_MIN=10.10 osxcross/build.sh || exit 1; \
     mv osxcross/target $OSX_NDK_X86; \
     rm -rf osxcross;
@@ -70,9 +70,12 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 # Install/compile taglib for various platforms
 
 # Download latest source
-ENV TAGLIB_VERSION=1.12
+ENV TAGLIB_VERSION        1.12
+ENV TAGLIB_SHA            7fccd07669a523b07a15bd24c8da1bbb92206cb19e9366c3692af3d79253b703
+ENV TAGLIB_DOWNLOAD_FILE  taglib-$TAGLIB_VERSION.tar.gz
 RUN cd /tmp && \
-    wget https://taglib.github.io/releases/taglib-$TAGLIB_VERSION.tar.gz
+    wget https://taglib.github.io/releases/$TAGLIB_DOWNLOAD_FILE && \
+    echo "$TAGLIB_SHA $TAGLIB_DOWNLOAD_FILE" | sha256sum -c - || exit 1;
 
 RUN echo "Build static taglib for Linux 64" && \
     cd /tmp && \
@@ -101,8 +104,8 @@ RUN echo "Build static taglib for macOS" && \
         -DCMAKE_INSTALL_PREFIX=/darwin -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
         -DCMAKE_C_COMPILER=/usr/local/osx-ndk-x86/bin/o64-clang \
         -DCMAKE_CXX_COMPILER=/usr/local/osx-ndk-x86/bin/o64-clang++ \
-        -DCMAKE_RANLIB=/usr/local/osx-ndk-x86/bin/x86_64-apple-darwin16-ranlib \
-        -DCMAKE_AR=/usr/local/osx-ndk-x86/bin/x86_64-apple-darwin16-ar && \
+        -DCMAKE_RANLIB=/usr/local/osx-ndk-x86/bin/x86_64-apple-darwin20.2-ranlib \
+        -DCMAKE_AR=/usr/local/osx-ndk-x86/bin/x86_64-apple-darwin20.2-ar && \
     make install && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
@@ -160,23 +163,9 @@ RUN echo "Build static taglib for Windows 64" && \
     rm -rf taglib-$TAGLIB_VERSION
 
 #####################################################################################################
-# Install GoLang and Go tools
-
-# Install GoLang
-ENV GO_VERSION        1.17.2
-ENV GO_SHA            f242a9db6a0ad1846de7b6d94d507915d14062660616a61ef7c808a76e4f1676
-ENV GO_DOWNLOAD_FILE  go${GO_VERSION}.linux-amd64.tar.gz
-ENV GO_DOWNLOAD_URL   https://golang.org/dl/${GO_DOWNLOAD_FILE} 
-
-RUN cd /tmp && \
-    wget ${GO_DOWNLOAD_URL} && \
-    echo "$GO_SHA $GO_DOWNLOAD_FILE" | sha256sum -c - || exit 1; \
-    tar -xf ${GO_DOWNLOAD_FILE} && \
-    mv go /usr/local
-
 # Install GoReleaser
-ENV GORELEASER_VERSION        0.181.1
-ENV GORELEASER_SHA            af744b801f08f4c7d7c079867068d2bc2a266c84ffa512bce2aeb61ad28b60ad
+ENV GORELEASER_VERSION        1.7.0
+ENV GORELEASER_SHA            e74934e7571991522324642ac7b032310f04baf192ce2a54db1dc323b97bcd7d
 ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
 ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
 ENV GOOS linux
