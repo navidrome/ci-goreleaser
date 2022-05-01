@@ -1,5 +1,5 @@
 # Needs to derive from an old Linux to be able to generate binaries compatible with old kernels
-FROM golang:1.18.0-buster
+FROM golang:1.18.1-buster
 
 LABEL maintainer="deluan@navidrome.org"
 
@@ -164,8 +164,8 @@ RUN echo "Build static taglib for Windows 64" && \
 
 #####################################################################################################
 # Install GoReleaser
-ENV GORELEASER_VERSION        1.7.0
-ENV GORELEASER_SHA            e74934e7571991522324642ac7b032310f04baf192ce2a54db1dc323b97bcd7d
+ENV GORELEASER_VERSION        1.8.3
+ENV GORELEASER_SHA            304fa012709d12800528b124c9dbeabdcf8918f5e77b3877916e705798ed7962
 ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
 ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
 ENV GOOS linux
