@@ -20,10 +20,10 @@ check-version:
 	@if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+.* ]]; then echo "Usage: version=X.X.X-X make "; exit 1; fi
 .PHONY: check-version
 
-install: build
+release: build
 	docker push ${user}/${repo}:${version}
 	docker push ${user}/${repo}:latest
-.PHONY: install
+.PHONY: release
 
 get-tags:
 	@wget -q https://registry.hub.docker.com/v1/repositories/deluan/ci-goreleaser/tags -O - | jq -r '.[].name' | grep "^1" | sort -r

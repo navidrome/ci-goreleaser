@@ -16,7 +16,7 @@ the first release based on that, the version should be `1.13.7-1`. You can check
 ### Manual release
 
 ```bash
-make install version=1.13.7-1 
+make release version=1.13.7-1 
 ```
 
 This will build the image in the local workstation, tag and push the image.
