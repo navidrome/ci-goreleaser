@@ -1,5 +1,5 @@
 # Needs to derive from an old Linux to be able to generate binaries compatible with old kernels
-FROM golang:1.18.4-buster
+FROM golang:1.19.1-buster
 
 LABEL maintainer="deluan@navidrome.org"
 
@@ -55,11 +55,6 @@ RUN dpkg --add-architecture armel && \
 # Install ARM toolset
     gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
-# Install build & runtime dependencies	
-    pkg-config libtag1-dev \	
-    libtag1-dev:i386 \	
-    libtag1-dev:arm64 \	
-    libtag1-dev:armel \
     || exit 1; rm -rf /var/lib/apt/lists/*;
 
 # Fix support for 386 (Linux 32bits) platform
@@ -164,8 +159,8 @@ RUN echo "Build static taglib for Windows 64" && \
 
 #####################################################################################################
 # Install GoReleaser
-ENV GORELEASER_VERSION        1.10.2
-ENV GORELEASER_SHA            df5607bdd648bf44eeb1af9bb03f65fd04427b55164d2eb07d6a58baa9c7ad66
+ENV GORELEASER_VERSION        1.11.4
+ENV GORELEASER_SHA            55c2a911b33f1da700d937e51696a8be376fe64afe6f6681fd194456a640c3d6
 ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
 ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
 ENV GOOS linux
