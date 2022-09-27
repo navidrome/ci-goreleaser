@@ -55,6 +55,8 @@ RUN dpkg --add-architecture armel && \
 # Install ARM toolset
     gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
+# Install build & runtime dependencies	
+    lib32z1-dev \
     || exit 1; rm -rf /var/lib/apt/lists/*;
 
 # Fix support for 386 (Linux 32bits) platform
@@ -86,7 +88,7 @@ RUN echo "Build static taglib for Linux 32" && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     CXXFLAGS=-m32 CFLAGS=-m32 cmake -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON && \
-    make && \
+    make && mkdir /usr/lib/i386-linux-gnu && \
     cp taglib/libtag.a /usr/lib/i386-linux-gnu && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
