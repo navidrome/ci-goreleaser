@@ -45,7 +45,7 @@ RUN mkdir -p /root/.ssh; \
 
 #####################################################################################################
 # Install other cross-compiling tools and dependencies
-RUN dpkg --add-architecture armel && \
+RUN dpkg --add-architecture armhf && \
     dpkg --add-architecture arm64 && \
     dpkg --add-architecture i386 && \
     apt-get update && \
@@ -53,7 +53,7 @@ RUN dpkg --add-architecture armel && \
 # Install Windows toolset
     gcc-mingw-w64 g++-mingw-w64 \
 # Install ARM toolset
-    gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
+    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
 # Install build & runtime dependencies	
     lib32z1-dev \
@@ -70,6 +70,8 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 ENV TAGLIB_VERSION        1.12
 ENV TAGLIB_SHA            7fccd07669a523b07a15bd24c8da1bbb92206cb19e9366c3692af3d79253b703
 ENV TAGLIB_DOWNLOAD_FILE  taglib-$TAGLIB_VERSION.tar.gz
+ENV TABLIB_BUILD_OPTS     -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON
+
 RUN cd /tmp && \
     wget https://taglib.github.io/releases/$TAGLIB_DOWNLOAD_FILE && \
     echo "$TAGLIB_SHA $TAGLIB_DOWNLOAD_FILE" | sha256sum -c - || exit 1;
@@ -78,7 +80,7 @@ RUN echo "Build static taglib for Linux 64" && \
     cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON && \
+    cmake $TABLIB_BUILD_OPTS && \
     make install && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
@@ -87,9 +89,8 @@ RUN echo "Build static taglib for Linux 32" && \
     cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
-    CXXFLAGS=-m32 CFLAGS=-m32 cmake -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON && \
-    make && mkdir /usr/lib/i386-linux-gnu && \
-    cp taglib/libtag.a /usr/lib/i386-linux-gnu && \
+    CXXFLAGS=-m32 CFLAGS=-m32 cmake -DCMAKE_INSTALL_PREFIX=/i386 $TABLIB_BUILD_OPTS && \
+    make install && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
@@ -98,7 +99,7 @@ RUN echo "Build static taglib for macOS" && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake  \
-        -DCMAKE_INSTALL_PREFIX=/darwin -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
+        $TABLIB_BUILD_OPTS -DCMAKE_INSTALL_PREFIX=/darwin \
         -DCMAKE_C_COMPILER=/usr/local/osx-ndk-x86/bin/o64-clang \
         -DCMAKE_CXX_COMPILER=/usr/local/osx-ndk-x86/bin/o64-clang++ \
         -DCMAKE_RANLIB=/usr/local/osx-ndk-x86/bin/x86_64-apple-darwin20.2-ranlib \
@@ -112,11 +113,10 @@ RUN echo "Build static taglib for Linux ARM" && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake \
-        -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
-        -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc \
-        -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ && \
-    make && \
-    cp taglib/libtag.a /usr/lib/arm-linux-gnueabi && \
+        $TABLIB_BUILD_OPTS \
+        -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
+        -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ && \
+    make install && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
@@ -125,11 +125,10 @@ RUN echo "Build static taglib for Linux ARM64" && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake \
-        -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
+        $TABLIB_BUILD_OPTS \
         -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
         -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ && \
-    make && \
-    cp taglib/libtag.a /usr/lib/aarch64-linux-gnu && \
+    make install && \
     cd .. && \
     rm -rf taglib-$TAGLIB_VERSION
 
@@ -138,7 +137,7 @@ RUN echo "Build static taglib for Windows 32" && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake  \
-        -DCMAKE_INSTALL_PREFIX=/mingw32 -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
+        $TABLIB_BUILD_OPTS -DCMAKE_INSTALL_PREFIX=/mingw32 \
         -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Windows \
         -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc \
         -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++ && \
@@ -151,7 +150,7 @@ RUN echo "Build static taglib for Windows 64" && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
     cd taglib-$TAGLIB_VERSION && \
     cmake  \
-        -DCMAKE_INSTALL_PREFIX=/mingw64 -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON \
+        $TABLIB_BUILD_OPTS -DCMAKE_INSTALL_PREFIX=/mingw64 \
         -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Windows \
         -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
         -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ && \
