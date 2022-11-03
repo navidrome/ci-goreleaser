@@ -37,6 +37,9 @@ RUN dpkg --add-architecture armhf && \
     lib32z1-dev \
     || exit 1
 
+# Get GCC Compiler for arm6
+RUN wget -q -O- https://github.com/Pro/raspi-toolchain/releases/latest/download/raspi-toolchain.tar.gz | tar xz --strip-components=1 -C /opt
+
 # Fix support for 386 (Linux 32bits) platform
 # From https://stackoverflow.com/a/38751292
 RUN ln -s /usr/include/asm-generic /usr/include/asm
@@ -92,7 +95,7 @@ RUN echo "Build static taglib for macOS" && \
         -DCMAKE_CXX_COMPILER=${OSX_NDK_X86}/bin/o64-clang++ \
         -DCMAKE_RANLIB=${OSX_NDK_X86}/bin/x86_64-apple-darwin20.2-ranlib \
         -DCMAKE_AR=${OSX_NDK_X86}/bin/x86_64-apple-darwin20.2-ar && \
-    make install 
+    make install
 
 #####################################################################################################
 FROM base-taglib as build-linux32
@@ -100,6 +103,17 @@ FROM base-taglib as build-linux32
 RUN echo "Build static taglib for Linux 32" && \
     cd /tmp/taglib-src && \
     CXXFLAGS=-m32 CFLAGS=-m32 cmake -DCMAKE_INSTALL_PREFIX=/i386 $TABLIB_BUILD_OPTS && \
+    make install 
+
+#####################################################################################################
+FROM base-taglib as build-arm6
+
+RUN echo "Build static taglib for Linux ARM6" && \
+    cd /tmp/taglib-src && \
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=/arm6 $TABLIB_BUILD_OPTS \
+        -DCMAKE_C_COMPILER=/opt/cross-pi-gcc/bin/arm-linux-gnueabihf-gcc \
+        -DCMAKE_CXX_COMPILER=/opt/cross-pi-gcc/bin/arm-linux-gnueabihf-g++ && \
     make install 
 
 #####################################################################################################
@@ -188,6 +202,7 @@ RUN wget ${GORELEASER_DOWNLOAD_URL}; \
 # Copy cross-compiled static libraries
 COPY --from=build-linux32 /i386 /i386
 COPY --from=build-arm /arm /arm
+COPY --from=build-arm6 /arm6 /arm6
 COPY --from=build-arm64 /arm64 /arm64
 COPY --from=build-win32 /mingw32 /mingw32
 COPY --from=build-win64 /mingw64 /mingw64
