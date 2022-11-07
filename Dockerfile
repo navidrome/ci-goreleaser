@@ -22,25 +22,6 @@ RUN apt-get update && \
     gcc-multilib g++-multilib clang llvm-dev --no-install-recommends \
     || exit 1
 
-# Install other cross-compiling tools and dependencies
-RUN dpkg --add-architecture armhf && \
-    dpkg --add-architecture arm64 && \
-    dpkg --add-architecture i386 && \
-    apt-get update && \
-    apt-get install -y \
-# Install Windows toolset
-    gcc-mingw-w64 g++-mingw-w64 \
-# Install ARM toolset
-    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
-    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
-# Install build & runtime dependencies	
-    lib32z1-dev \
-    || exit 1
-
-# Fix support for 386 (Linux 32bits) platform
-# From https://stackoverflow.com/a/38751292
-RUN ln -s /usr/include/asm-generic /usr/include/asm
-
 RUN mkdir -p /root/.ssh; \
     chmod 0700 /root/.ssh; \
     ssh-keyscan github.com > /root/.ssh/known_hosts;
@@ -64,6 +45,36 @@ RUN git clone https://github.com/tpoechtrager/osxcross.git && \
 
 #####################################################################################################
 FROM base as base-taglib
+
+# Install other cross-compiling tools and dependencies
+RUN dpkg --add-architecture armhf && \
+    dpkg --add-architecture arm64 && \
+    dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y \
+# Install Windows toolset
+    gcc-mingw-w64 g++-mingw-w64 \
+# Install ARM toolset
+    # gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
+    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
+# Install build & runtime dependencies	
+    lib32z1-dev \
+    || exit 1
+
+# Get GCC Compiler for ARMv6 and v7
+ENV RASPI_VERSION        1.0.2
+ENV RASPI_SHA            3c2fb51a56e4a72171eba9fe8783efb5f3db3a514f8b166f64b28f7327636c21
+ENV RASPI_DOWNLOAD_FILE  raspi-toolchain.tar.gz
+ENV RASPI_DOWNLOAD_URL   https://github.com/Pro/raspi-toolchain/releases/download/v${RASPI_VERSION}/${RASPI_DOWNLOAD_FILE}
+
+RUN wget ${RASPI_DOWNLOAD_URL}; \
+    echo "${RASPI_SHA} ${RASPI_DOWNLOAD_FILE}" | sha256sum -c - || exit 1; \
+    tar -xzf ${RASPI_DOWNLOAD_FILE} --strip-components=1 -C /opt; \
+    rm ${RASPI_DOWNLOAD_FILE};
+
+# Fix support for 386 (Linux 32bits) platform
+# From https://stackoverflow.com/a/38751292
+RUN ln -s /usr/include/asm-generic /usr/include/asm
 
 # Download TagLib source
 ENV TAGLIB_VERSION        1.12
@@ -105,12 +116,12 @@ RUN echo "Build static taglib for Linux 32" && \
 #####################################################################################################
 FROM base-taglib as build-arm
 
-RUN echo "Build static taglib for Linux ARM" && \
+RUN echo "Build static taglib for Linux ARMv6 and v7" && \
     cd /tmp/taglib-src && \
     cmake \
         -DCMAKE_INSTALL_PREFIX=/arm $TABLIB_BUILD_OPTS \
-        -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
-        -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ && \
+        -DCMAKE_C_COMPILER=/opt/cross-pi-gcc/bin/arm-linux-gnueabihf-gcc \
+        -DCMAKE_CXX_COMPILER=/opt/cross-pi-gcc/bin/arm-linux-gnueabihf-g++ && \
     make install 
 
 #####################################################################################################
@@ -172,13 +183,14 @@ RUN cd /tmp && \
     tar -xf ${GO_DOWNLOAD_FILE} && \
     mv go /usr/local
 
+ENV GOOS linux
+ENV GOARCH amd64
+
 # Install GoReleaser
 ENV GORELEASER_VERSION        1.11.4
 ENV GORELEASER_SHA            55c2a911b33f1da700d937e51696a8be376fe64afe6f6681fd194456a640c3d6
 ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
 ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
-ENV GOOS linux
-ENV GOARCH amd64
 
 RUN wget ${GORELEASER_DOWNLOAD_URL}; \
     echo "${GORELEASER_SHA} ${GORELEASER_DOWNLOAD_FILE}" | sha256sum -c - || exit 1; \
