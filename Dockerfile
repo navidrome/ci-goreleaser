@@ -47,7 +47,7 @@ RUN git clone https://github.com/tpoechtrager/osxcross.git && \
 FROM base as base-taglib
 
 # Install other cross-compiling tools and dependencies
-RUN dpkg --add-architecture armhf && \
+RUN dpkg --add-architecture armel && \
     dpkg --add-architecture arm64 && \
     dpkg --add-architecture i386 && \
     apt-get update && \
@@ -55,22 +55,11 @@ RUN dpkg --add-architecture armhf && \
 # Install Windows toolset
     gcc-mingw-w64 g++-mingw-w64 \
 # Install ARM toolset
-    # gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross \
+    gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
 # Install build & runtime dependencies	
     lib32z1-dev \
     || exit 1
-
-# Get GCC Compiler for ARMv6 and v7
-ENV RASPI_VERSION        1.0.2
-ENV RASPI_SHA            3c2fb51a56e4a72171eba9fe8783efb5f3db3a514f8b166f64b28f7327636c21
-ENV RASPI_DOWNLOAD_FILE  raspi-toolchain.tar.gz
-ENV RASPI_DOWNLOAD_URL   https://github.com/Pro/raspi-toolchain/releases/download/v${RASPI_VERSION}/${RASPI_DOWNLOAD_FILE}
-
-RUN wget ${RASPI_DOWNLOAD_URL}; \
-    echo "${RASPI_SHA} ${RASPI_DOWNLOAD_FILE}" | sha256sum -c - || exit 1; \
-    tar -xzf ${RASPI_DOWNLOAD_FILE} --strip-components=1 -C /opt; \
-    rm ${RASPI_DOWNLOAD_FILE};
 
 # Fix support for 386 (Linux 32bits) platform
 # From https://stackoverflow.com/a/38751292
@@ -120,8 +109,8 @@ RUN echo "Build static taglib for Linux ARMv6 and v7" && \
     cd /tmp/taglib-src && \
     cmake \
         -DCMAKE_INSTALL_PREFIX=/arm $TABLIB_BUILD_OPTS \
-        -DCMAKE_C_COMPILER=/opt/cross-pi-gcc/bin/arm-linux-gnueabihf-gcc \
-        -DCMAKE_CXX_COMPILER=/opt/cross-pi-gcc/bin/arm-linux-gnueabihf-g++ && \
+        -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc \
+        -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ && \
     make install 
 
 #####################################################################################################
