@@ -69,7 +69,7 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 ENV TAGLIB_VERSION        1.13
 ENV TAGLIB_SHA            58f08b4db3dc31ed152c04896ee9172d22052bc7ef12888028c01d8b1d60ade0
 ENV TAGLIB_DOWNLOAD_FILE  taglib-$TAGLIB_VERSION.tar.gz
-ENV TABLIB_BUILD_OPTS     -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON
+ENV TABLIB_BUILD_OPTS     -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF
 
 RUN cd /tmp && \
     wget https://taglib.github.io/releases/$TAGLIB_DOWNLOAD_FILE && \
@@ -131,7 +131,7 @@ RUN echo "Build static taglib for Windows 32" && \
     cd /tmp/taglib-src && \
     cmake  \
         $TABLIB_BUILD_OPTS -DCMAKE_INSTALL_PREFIX=/mingw32 \
-        -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_SYSTEM_NAME=Windows \
         -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc \
         -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++ && \
     make install
@@ -143,7 +143,7 @@ RUN echo "Build static taglib for Windows 64" && \
     cd /tmp/taglib-src && \
     cmake  \
         $TABLIB_BUILD_OPTS -DCMAKE_INSTALL_PREFIX=/mingw64 \
-        -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_SYSTEM_NAME=Windows \
         -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
         -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ && \
     make install
@@ -170,7 +170,8 @@ RUN cd /tmp && \
     wget ${GO_DOWNLOAD_URL} && \
     echo "${GO_SHA} ${GO_DOWNLOAD_FILE}" | sha256sum -c - || exit 1; \
     tar -xf ${GO_DOWNLOAD_FILE} && \
-    mv go /usr/local
+    mv go /usr/local && \
+    rm ${GO_DOWNLOAD_FILE}
 
 ENV GOOS linux
 ENV GOARCH amd64
