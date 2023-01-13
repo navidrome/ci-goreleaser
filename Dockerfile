@@ -57,7 +57,7 @@ RUN dpkg --add-architecture armel && \
 # Install ARM toolset
     gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
-# Install build & runtime dependencies	
+# Install build & runtime dependencies
     lib32z1-dev \
     || exit 1
 
@@ -66,8 +66,8 @@ RUN dpkg --add-architecture armel && \
 RUN ln -s /usr/include/asm-generic /usr/include/asm
 
 # Download TagLib source
-ENV TAGLIB_VERSION        1.12
-ENV TAGLIB_SHA            7fccd07669a523b07a15bd24c8da1bbb92206cb19e9366c3692af3d79253b703
+ENV TAGLIB_VERSION        1.13
+ENV TAGLIB_SHA            58f08b4db3dc31ed152c04896ee9172d22052bc7ef12888028c01d8b1d60ade0
 ENV TAGLIB_DOWNLOAD_FILE  taglib-$TAGLIB_VERSION.tar.gz
 ENV TABLIB_BUILD_OPTS     -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON
 
@@ -92,7 +92,7 @@ RUN echo "Build static taglib for macOS" && \
         -DCMAKE_CXX_COMPILER=${OSX_NDK_X86}/bin/o64-clang++ \
         -DCMAKE_RANLIB=${OSX_NDK_X86}/bin/x86_64-apple-darwin20.2-ranlib \
         -DCMAKE_AR=${OSX_NDK_X86}/bin/x86_64-apple-darwin20.2-ar && \
-    make install 
+    make install
 
 #####################################################################################################
 FROM base-taglib as build-linux32
@@ -100,7 +100,7 @@ FROM base-taglib as build-linux32
 RUN echo "Build static taglib for Linux 32" && \
     cd /tmp/taglib-src && \
     CXXFLAGS=-m32 CFLAGS=-m32 cmake -DCMAKE_INSTALL_PREFIX=/i386 $TABLIB_BUILD_OPTS && \
-    make install 
+    make install
 
 #####################################################################################################
 FROM base-taglib as build-arm
@@ -111,7 +111,7 @@ RUN echo "Build static taglib for Linux ARMv6 and v7" && \
         -DCMAKE_INSTALL_PREFIX=/arm $TABLIB_BUILD_OPTS \
         -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc \
         -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ && \
-    make install 
+    make install
 
 #####################################################################################################
 FROM base-taglib as build-arm64
@@ -134,7 +134,7 @@ RUN echo "Build static taglib for Windows 32" && \
         -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Windows \
         -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc \
         -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++ && \
-    make install 
+    make install
 
 #####################################################################################################
 FROM base-taglib as build-win64
@@ -146,7 +146,7 @@ RUN echo "Build static taglib for Windows 64" && \
         -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Windows \
         -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
         -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ && \
-    make install 
+    make install
 
 
 #####################################################################################################
@@ -158,13 +158,13 @@ LABEL maintainer="deluan@navidrome.org"
 RUN echo "Build static taglib for Linux 64" && \
     cd /tmp/taglib-src && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr $TABLIB_BUILD_OPTS && \
-    make install 
+    make install
 
 # Install GoLang
 ENV GO_VERSION        1.19.3
 ENV GO_SHA            74b9640724fd4e6bb0ed2a1bc44ae813a03f1e72a4c76253e2d5c015494430ba
 ENV GO_DOWNLOAD_FILE  go${GO_VERSION}.linux-amd64.tar.gz
-ENV GO_DOWNLOAD_URL   https://golang.org/dl/${GO_DOWNLOAD_FILE} 
+ENV GO_DOWNLOAD_URL   https://golang.org/dl/${GO_DOWNLOAD_FILE}
 
 RUN cd /tmp && \
     wget ${GO_DOWNLOAD_URL} && \
