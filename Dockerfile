@@ -161,8 +161,8 @@ RUN echo "Build static taglib for Linux 64" && \
     make install
 
 # Install GoLang
-ENV GO_VERSION        1.20
-ENV GO_SHA            5a9ebcc65c1cce56e0d2dc616aff4c4cedcfbda8cc6f0288cc08cda3b18dcbf1
+ENV GO_VERSION        1.20.1
+ENV GO_SHA            000a5b1fca4f75895f78befeb2eecf10bfff3c428597f3f1e69133b63b911b02
 ENV GO_DOWNLOAD_FILE  go${GO_VERSION}.linux-amd64.tar.gz
 ENV GO_DOWNLOAD_URL   https://golang.org/dl/${GO_DOWNLOAD_FILE}
 
