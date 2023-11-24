@@ -5,15 +5,15 @@ repo=ci-goreleaser
 version ?= latest
 
 latest:
-	docker build -t ${user}/${repo}:latest .
+	docker build --platform linux/amd64 -t ${user}/${repo}:latest .
 .PHONY: latest
 
 build: check-version
-	docker build -t ${user}/${repo}:${version} -t ${user}/${repo}:latest .
+	docker build --platform linux/amd64 -t ${user}/${repo}:${version} -t ${user}/${repo}:latest .
 .PHONY: build
 
 build-no-cache: check-version
-	docker build --no-cache -t ${user}/${repo}:${version} -t ${user}/${repo}:latest .
+	docker build --platform linux/amd64 --no-cache -t ${user}/${repo}:${version} -t ${user}/${repo}:latest .
 .PHONY: build-no-cache
 
 check-version:
