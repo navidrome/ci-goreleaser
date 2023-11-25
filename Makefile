@@ -11,6 +11,9 @@ latest:
 		--build-arg GO_SHA=${GO_SHA} \
 		--build-arg GORELEASER_VERSION=${GORELEASER_VERSION} \
 		--build-arg GORELEASER_SHA=${GORELEASER_SHA} \
+		--build-arg TAGLIB_VERSION=${TAGLIB_VERSION} \
+		--build-arg TAGLIB_SHA=${TAGLIB_SHA} \
+		--build-arg TAGLIB_URL=${TAGLIB_URL} \
 		--platform linux/amd64 -t ${user}/${repo}:latest .
 .PHONY: latest
 

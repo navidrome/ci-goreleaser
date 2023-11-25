@@ -66,18 +66,19 @@ RUN dpkg --add-architecture armel && \
 RUN ln -s /usr/include/asm-generic /usr/include/asm
 
 # Download TagLib source
-ENV TAGLIB_VERSION        1.13
-ENV TAGLIB_SHA            58f08b4db3dc31ed152c04896ee9172d22052bc7ef12888028c01d8b1d60ade0
+ARG TAGLIB_VERSION
+ARG TAGLIB_SHA
+ARG TAGLIB_URL
 ENV TAGLIB_DOWNLOAD_FILE  taglib-$TAGLIB_VERSION.tar.gz
 ENV TABLIB_BUILD_OPTS     -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF
 
 RUN cd /tmp && \
-    wget https://taglib.github.io/releases/$TAGLIB_DOWNLOAD_FILE && \
+    wget $TAGLIB_URL -O $TAGLIB_DOWNLOAD_FILE && \
     echo "$TAGLIB_SHA $TAGLIB_DOWNLOAD_FILE" | sha256sum -c - || exit 1;
 
 RUN cd /tmp && \
     tar xvfz taglib-$TAGLIB_VERSION.tar.gz && \
-    mv taglib-${TAGLIB_VERSION} /tmp/taglib-src
+    mv taglib-taglib-* /tmp/taglib-src
 
 #####################################################################################################
 FROM base-macos as build-macos

@@ -33,3 +33,22 @@ if [ -n "$checksums_url" ]; then
 else
     echo "Checksums file URL not found." > /dev/stderr
 fi
+
+# Latest TagLib version
+
+# GitHub API URL for the latest TagLib release
+url="https://api.github.com/repos/taglib/taglib/releases/latest"
+
+# Use curl to fetch the JSON data and jq to parse it
+latest_version=$(curl -s $url | jq -r '.tag_name' | tr -d v)
+tarball_url=$(curl -s $url | jq -r '.tarball_url')
+
+# Print the version and tarball URL
+echo "TAGLIB_VERSION=$latest_version"
+echo "TAGLIB_URL=$tarball_url"
+
+# Optional: Download and compute the SHA256 checksum
+if [ -n "$tarball_url" ]; then
+  sha=$(curl -sL "$tarball_url" | shasum -a 256 | awk '{print $1}')
+  echo "TAGLIB_SHA=$sha"
+fi
