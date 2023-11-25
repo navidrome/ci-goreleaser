@@ -1,3 +1,5 @@
+include .versions
+export
 
 user=deluan
 repo=ci-goreleaser
@@ -5,16 +7,21 @@ repo=ci-goreleaser
 version ?= latest
 
 latest:
-	docker build --platform linux/amd64 -t ${user}/${repo}:latest .
+	docker build --build-arg GO_VERSION=${GO_VERSION} \
+		--build-arg GO_SHA=${GO_SHA} \
+		--build-arg GORELEASER_VERSION=${GORELEASER_VERSION} \
+		--build-arg GORELEASER_SHA=${GORELEASER_SHA} \
+		--platform linux/amd64 -t ${user}/${repo}:latest .
 .PHONY: latest
 
-build: check-version
-	docker build --platform linux/amd64 -t ${user}/${repo}:${version} -t ${user}/${repo}:latest .
-.PHONY: build
+update-versions:
+	./latest-versions.sh > .versions
+	git diff .versions
+.PHONY: update-versions
 
-build-no-cache: check-version
-	docker build --platform linux/amd64 --no-cache -t ${user}/${repo}:${version} -t ${user}/${repo}:latest .
-.PHONY: build-no-cache
+build: check-version latest
+	docker tag ${user}/${repo}:latest ${user}/${repo}:${version}
+.PHONY: build
 
 check-version:
 	@if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+.* ]]; then echo "Usage: version=X.X.X-X make "; exit 1; fi
