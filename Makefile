@@ -1,5 +1,4 @@
 include .versions
-export
 
 user=deluan
 repo=ci-goreleaser
