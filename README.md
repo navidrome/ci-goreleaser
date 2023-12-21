@@ -10,6 +10,10 @@ Docker image used to generate Navidrome's binaries.
 
 ## Usage
 
+Versions used in the image build are defined in the `.versions` file. To update them, call `make update-versions`.
+If there are any changes, you need to build and push a new image with `make release version=X.X.X-X`. Don't forget
+to commit the updated `.versions` file.
+
 The version represents the Go version + a counter. So if the Go version is `1.13.7` and this is
 the first release based on that, the version should be `1.13.7-1`. You can check the latest release with `make latest-tag`
 
