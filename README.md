@@ -1,6 +1,8 @@
 # Navidrome CI-GoReleaser
 
-[![Version](https://img.shields.io/docker/v/deluan/ci-goreleaser?label=Version&sort=semver)](https://hub.docker.com/r/deluan/ci-goreleaser/tags)
+
+[![Docker Version](https://img.shields.io/docker/v/deluan/ci-goreleaser/latest?logo=docker)](https://hub.docker.com/r/deluan/ci-goreleaser/tags)
+[![Repo Version](https://img.shields.io/docker/v/deluan/ci-goreleaser?label=version&sort=semver&logo=github)](https://hub.docker.com/r/deluan/ci-goreleaser/tags)
 [![Goreleaser](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnavidrome%2Fci-goreleaser%2Fmaster%2F.versions&query=%24.GORELEASER_VERSION&label=Goreleaser&color=brightgreen)](https://github.com/goreleaser/goreleaser/releases)
 [![TagLib](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnavidrome%2Fci-goreleaser%2Fmaster%2F.versions&query=%24.TAGLIB_VERSION&label=TagLib&color=brightgreen)](https://github.com/taglib/taglib/releases)
 
