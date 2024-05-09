@@ -1,6 +1,6 @@
 #####################################################################################################
 # Needs to derive from an old Linux to be able to generate binaries compatible with old kernels
-FROM debian:buster as base
+FROM debian:bullseye as base
 
 # Set basic env vars
 ENV GOROOT          /usr/local/go
@@ -15,10 +15,10 @@ WORKDIR ${GOPATH}
 # Install tools
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
-    apt-get install -y automake autogen \
+    apt-get install -y automake autogen pkg-config \
     libtool libxml2-dev uuid-dev libssl-dev bash \
     patch cmake make tar xz-utils bzip2 gzip zlib1g-dev sed cpio \
-    git apt-transport-https ca-certificates wget ssh python \
+    git apt-transport-https ca-certificates wget ssh python-is-python3 \
     gcc-multilib g++-multilib clang llvm-dev --no-install-recommends \
     || exit 1
 
@@ -57,6 +57,7 @@ RUN dpkg --add-architecture armel && \
 # Install ARM toolset
     gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libc6-dev-armel-cross \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross \
+    g++-10-aarch64-linux-gnu g++-10-arm-linux-gnueabi gcc-10-aarch64-linux-gnu gcc-10-arm-linux-gnueabi \
 # Install build & runtime dependencies
     lib32z1-dev \
     || exit 1
