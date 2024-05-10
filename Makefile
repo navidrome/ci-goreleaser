@@ -12,7 +12,7 @@ dev:
 		--build-arg GORELEASER_SHA=${GORELEASER_SHA} \
 		--build-arg TAGLIB_VERSION=${TAGLIB_VERSION} \
 		--build-arg TAGLIB_SHA=${TAGLIB_SHA} \
-		--platform linux/amd64 -t ${user}/${repo}:dev .
+		-t ${user}/${repo}:dev .
 .PHONY: dev
 
 latest: dev
