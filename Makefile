@@ -12,7 +12,7 @@ latest:
 		--build-arg GORELEASER_SHA=${GORELEASER_SHA} \
 		--build-arg TAGLIB_VERSION=${TAGLIB_VERSION} \
 		--build-arg TAGLIB_SHA=${TAGLIB_SHA} \
-		--platform linux/amd64 -t ${user}/${repo}:latest .
+		-t ${user}/${repo}:latest .
 .PHONY: latest
 
 update-versions:
