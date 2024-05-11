@@ -1,13 +1,13 @@
 #####################################################################################################
-FROM ghcr.io/goreleaser/goreleaser-cross:v1.22 as base-taglib
-
-# Fix support for 386 (Linux 32bits) platform
-# From https://stackoverflow.com/a/38751292
-# RUN ln -s /usr/include/asm-generic /usr/include/asm
+FROM ghcr.io/goreleaser/goreleaser-cross:v1.22 as base
 
 RUN apt-get update
-RUN apt-get install -y pkg-config
+RUN #apt-get install -y pkg-config
+RUN apt-get install -y gcc-multilib g++-multilib
+RUN #apt-get install -y binutils build-essential cpp cpp-10 dpkg-dev g++ g++-10 gcc gcc-10
 
+#####################################################################################################
+FROM base as base-taglib
 
 # Download TagLib source
 ARG TAGLIB_VERSION
@@ -29,8 +29,7 @@ RUN cd /tmp && \
 FROM base-taglib as build-linux32
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get install -y build-essential
-RUN apt-get install -y gcc-multilib g++-multilib
+RUN #apt-get install -y gcc-multilib g++-multilib
 
 RUN echo "Build static taglib for Linux 32" && \
     cd /tmp/taglib-src && \
@@ -109,9 +108,7 @@ RUN echo "Build static taglib for darwin amd64" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as final
-
-LABEL maintainer="deluan@navidrome.org"
+FROM base-taglib as build-linux64
 
 # Build TagLib for Linux64
 RUN echo "Build static taglib for Linux 64" && \
@@ -121,6 +118,10 @@ RUN echo "Build static taglib for Linux 64" && \
         -DCMAKE_CXX_COMPILER=x86_64-linux-gnu-g++ && \
     make install
 
+#####################################################################################################
+FROM base as final
+
+LABEL maintainer="deluan@navidrome.org"
 ENV GOOS linux
 ENV GOARCH amd64
 
@@ -132,5 +133,6 @@ COPY --from=build-win64 /mingw64 /mingw64
 COPY --from=build-darwin-amd64 /darwin-amd64 /darwin-amd64
 COPY --from=build-darwin-arm64 /darwin-arm64 /darwin-arm64
 COPY --from=build-linux32 /i386 /i386
+COPY --from=build-linux64 /amd64 /amd64
 
 #CMD ["goreleaser", "-v"]
