@@ -1,5 +1,5 @@
 #####################################################################################################
-FROM ghcr.io/goreleaser/goreleaser-cross:v1.22 as base
+FROM ghcr.io/goreleaser/goreleaser-cross:v1.22 AS base
 
 RUN apt-get update
 RUN #apt-get install -y pkg-config
@@ -7,12 +7,12 @@ RUN apt-get install -y gcc-multilib g++-multilib
 RUN #apt-get install -y binutils build-essential cpp cpp-10 dpkg-dev g++ g++-10 gcc gcc-10
 
 #####################################################################################################
-FROM base as base-taglib
+FROM base AS base-taglib
 
 # Download TagLib source
 ARG TAGLIB_VERSION
 ARG TAGLIB_SHA
-ENV TABLIB_BUILD_OPTS     -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF
+ENV TABLIB_BUILD_OPTS=-DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF
 
 RUN cd /tmp && \
     git clone https://github.com/taglib/taglib.git && \
@@ -25,21 +25,9 @@ RUN cd /tmp && \
 RUN cd /tmp && \
     mv taglib /tmp/taglib-src
 
-#####################################################################################################
-FROM base-taglib as build-linux32
-
-ENV DEBIAN_FRONTEND noninteractive
-RUN #apt-get install -y gcc-multilib g++-multilib
-
-RUN echo "Build static taglib for Linux 32" && \
-    cd /tmp/taglib-src && \
-    CXXFLAGS=-m32 CFLAGS=-m32 cmake -DCMAKE_INSTALL_PREFIX=/i386 $TABLIB_BUILD_OPTS \
-        -DCMAKE_C_COMPILER=x86_64-linux-gnu-gcc \
-        -DCMAKE_CXX_COMPILER=x86_64-linux-gnu-g++ && \
-    make install
 
 #####################################################################################################
-FROM base-taglib as build-arm
+FROM base-taglib AS build-arm
 
 RUN echo "Build static taglib for Linux ARMv6 and v7" && \
     cd /tmp/taglib-src && \
@@ -50,7 +38,7 @@ RUN echo "Build static taglib for Linux ARMv6 and v7" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-arm64
+FROM base-taglib AS build-arm64
 
 RUN echo "Build static taglib for Linux ARM64" && \
     cd /tmp/taglib-src && \
@@ -61,7 +49,7 @@ RUN echo "Build static taglib for Linux ARM64" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-win32
+FROM base-taglib AS build-win32
 
 RUN echo "Build static taglib for Windows 32" && \
     cd /tmp/taglib-src && \
@@ -73,7 +61,7 @@ RUN echo "Build static taglib for Windows 32" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-win64
+FROM base-taglib AS build-win64
 
 RUN echo "Build static taglib for Windows 64" && \
     cd /tmp/taglib-src && \
@@ -86,7 +74,7 @@ RUN echo "Build static taglib for Windows 64" && \
 
 
 #####################################################################################################
-FROM base-taglib as build-darwin-arm64
+FROM base-taglib AS build-darwin-arm64
 
 RUN echo "Build static taglib for darwin arm64" && \
     cd /tmp/taglib-src && \
@@ -97,7 +85,7 @@ RUN echo "Build static taglib for darwin arm64" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-darwin-amd64
+FROM base-taglib AS build-darwin-amd64
 
 RUN echo "Build static taglib for darwin amd64" && \
     cd /tmp/taglib-src && \
@@ -108,7 +96,7 @@ RUN echo "Build static taglib for darwin amd64" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-linux64
+FROM base-taglib AS build-linux64
 
 # Build TagLib for Linux64
 RUN echo "Build static taglib for Linux 64" && \
@@ -119,11 +107,11 @@ RUN echo "Build static taglib for Linux 64" && \
     make install
 
 #####################################################################################################
-FROM base as final
+FROM base AS final
 
 LABEL maintainer="deluan@navidrome.org"
-ENV GOOS linux
-ENV GOARCH amd64
+ENV GOOS=linux
+ENV GOARCH=amd64
 
 # Copy cross-compiled static libraries
 COPY --from=build-arm /arm /arm
@@ -132,7 +120,6 @@ COPY --from=build-win32 /mingw32 /mingw32
 COPY --from=build-win64 /mingw64 /mingw64
 COPY --from=build-darwin-amd64 /darwin-amd64 /darwin-amd64
 COPY --from=build-darwin-arm64 /darwin-arm64 /darwin-arm64
-COPY --from=build-linux32 /i386 /i386
 COPY --from=build-linux64 /amd64 /amd64
 
 #CMD ["goreleaser", "-v"]
