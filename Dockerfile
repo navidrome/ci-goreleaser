@@ -1,9 +1,9 @@
 #####################################################################################################
-FROM ghcr.io/goreleaser/goreleaser-cross:v1.22 AS base
+FROM ghcr.io/goreleaser/goreleaser-cross:v1.23 AS base
 
 RUN apt-get update
 RUN #apt-get install -y pkg-config
-RUN apt-get install -y gcc-multilib g++-multilib
+RUN apt-get install -y gcc-multilib g++-multilib pkg-config
 RUN #apt-get install -y binutils build-essential cpp cpp-10 dpkg-dev g++ g++-10 gcc gcc-10
 
 #####################################################################################################
