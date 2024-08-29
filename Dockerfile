@@ -1,19 +1,19 @@
 #####################################################################################################
 # Needs to derive from an old Linux to be able to generate binaries compatible with old kernels
-FROM debian:bullseye as base
+FROM debian:bullseye AS base
 
 # Set basic env vars
-ENV GOROOT          /usr/local/go
-ENV GOPATH          /go
-ENV PATH            ${GOPATH}/bin:${GOROOT}/bin:${PATH}
-ENV OSX_NDK_X86     /usr/local/osx-ndk-x86
-ENV PATH            ${OSX_NDK_X86}/bin:$PATH
-ENV LD_LIBRARY_PATH ${OSX_NDK_X86}/lib:$LD_LIBRARY_PATH
+ENV GOROOT=/usr/local/go
+ENV GOPATH=/go
+ENV PATH=${GOPATH}/bin:${GOROOT}/bin:${PATH}
+ENV OSX_NDK_X86=/usr/local/osx-ndk-x86
+ENV PATH=${OSX_NDK_X86}/bin:$PATH
+ENV LD_LIBRARY_PATH=${OSX_NDK_X86}/lib
 
 WORKDIR ${GOPATH}
 
 # Install tools
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y automake autogen pkg-config \
     libtool libxml2-dev uuid-dev libssl-dev bash \
@@ -28,11 +28,11 @@ RUN mkdir -p /root/.ssh; \
 
 #####################################################################################################
 # Install macOS cross-compiling toolset
-FROM base as base-macos
+FROM base AS base-macos
 
-ENV OSX_SDK_VERSION 	11.1
-ENV OSX_SDK     		MacOSX$OSX_SDK_VERSION.sdk
-ENV OSX_SDK_PATH 		$OSX_SDK.tar.xz
+ENV OSX_SDK_VERSION=11.1
+ENV OSX_SDK=MacOSX$OSX_SDK_VERSION.sdk
+ENV OSX_SDK_PATH=$OSX_SDK.tar.xz
 
 COPY $OSX_SDK_PATH /go
 
@@ -44,7 +44,7 @@ RUN git clone https://github.com/tpoechtrager/osxcross.git && \
     rm -rf osxcross;
 
 #####################################################################################################
-FROM base as base-taglib
+FROM base AS base-taglib
 
 # Install other cross-compiling tools and dependencies
 RUN dpkg --add-architecture armel && \
@@ -69,7 +69,7 @@ RUN ln -s /usr/include/asm-generic /usr/include/asm
 # Download TagLib source
 ARG TAGLIB_VERSION
 ARG TAGLIB_SHA
-ENV TABLIB_BUILD_OPTS     -DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF
+ENV TABLIB_BUILD_OPTS=-DCMAKE_BUILD_TYPE=Release -DWITH_MP4=ON -DWITH_ASF=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF
 
 RUN cd /tmp && \
     git clone https://github.com/taglib/taglib.git && \
@@ -83,7 +83,7 @@ RUN cd /tmp && \
     mv taglib /tmp/taglib-src
 
 #####################################################################################################
-FROM base-macos as build-macos
+FROM base-macos AS build-macos
 
 COPY --from=base-taglib /tmp/taglib-src /tmp/taglib-src
 
@@ -98,7 +98,7 @@ RUN echo "Build static taglib for macOS" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-linux32
+FROM base-taglib AS build-linux32
 
 RUN echo "Build static taglib for Linux 32" && \
     cd /tmp/taglib-src && \
@@ -106,7 +106,7 @@ RUN echo "Build static taglib for Linux 32" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-arm
+FROM base-taglib AS build-arm
 
 RUN echo "Build static taglib for Linux ARMv6 and v7" && \
     cd /tmp/taglib-src && \
@@ -117,7 +117,7 @@ RUN echo "Build static taglib for Linux ARMv6 and v7" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-arm64
+FROM base-taglib AS build-arm64
 
 RUN echo "Build static taglib for Linux ARM64" && \
     cd /tmp/taglib-src && \
@@ -128,7 +128,7 @@ RUN echo "Build static taglib for Linux ARM64" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-win32
+FROM base-taglib AS build-win32
 
 RUN echo "Build static taglib for Windows 32" && \
     cd /tmp/taglib-src && \
@@ -140,7 +140,7 @@ RUN echo "Build static taglib for Windows 32" && \
     make install
 
 #####################################################################################################
-FROM base-taglib as build-win64
+FROM base-taglib AS build-win64
 
 RUN echo "Build static taglib for Windows 64" && \
     cd /tmp/taglib-src && \
@@ -153,7 +153,7 @@ RUN echo "Build static taglib for Windows 64" && \
 
 
 #####################################################################################################
-FROM base-taglib as final
+FROM base-taglib AS final
 
 LABEL maintainer="deluan@navidrome.org"
 
@@ -166,8 +166,8 @@ RUN echo "Build static taglib for Linux 64" && \
 # Install GoLang
 ARG GO_VERSION
 ARG GO_SHA
-ENV GO_DOWNLOAD_FILE  go${GO_VERSION}.linux-amd64.tar.gz
-ENV GO_DOWNLOAD_URL   https://golang.org/dl/${GO_DOWNLOAD_FILE}
+ENV GO_DOWNLOAD_FILE=go${GO_VERSION}.linux-amd64.tar.gz
+ENV GO_DOWNLOAD_URL=https://golang.org/dl/${GO_DOWNLOAD_FILE}
 
 RUN cd /tmp && \
     wget ${GO_DOWNLOAD_URL} && \
@@ -176,14 +176,14 @@ RUN cd /tmp && \
     mv go /usr/local && \
     rm ${GO_DOWNLOAD_FILE}
 
-ENV GOOS linux
-ENV GOARCH amd64
+ENV GOOS=linux
+ENV GOARCH=amd64
 
 # Install GoReleaser
 ARG GORELEASER_VERSION
 ARG GORELEASER_SHA
-ENV GORELEASER_DOWNLOAD_FILE  goreleaser_Linux_x86_64.tar.gz
-ENV GORELEASER_DOWNLOAD_URL   https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
+ENV GORELEASER_DOWNLOAD_FILE=goreleaser_Linux_x86_64.tar.gz
+ENV GORELEASER_DOWNLOAD_URL=https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
 
 RUN wget ${GORELEASER_DOWNLOAD_URL}; \
     echo "${GORELEASER_SHA} ${GORELEASER_DOWNLOAD_FILE}" | sha256sum -c - || exit 1; \

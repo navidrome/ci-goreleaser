@@ -3,8 +3,6 @@ include .versions
 user=deluan
 repo=ci-goreleaser
 
-version ?= latest
-
 dev:
 	docker build --build-arg GO_VERSION=${GO_VERSION} \
 		--build-arg GO_SHA=${GO_SHA} \
