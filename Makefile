@@ -36,7 +36,7 @@ update-versions:
 .PHONY: update-versions
 
 get-tags:
-	@wget -q https://registry.hub.docker.com/v1/repositories/deluan/ci-goreleaser/tags -O - | jq -r '.[].name' | grep "^1" | sort -r
+	@curl -s "https://hub.docker.com/v2/repositories/deluan/ci-goreleaser/tags?page_size=100" | jq -r '.results[].name' | grep "^1" | sort -r
 .PHONY: get-tags
 
 latest-tag:
